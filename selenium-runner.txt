@@ -1,0 +1,2 @@
+chrome => tests\firstTest.ts
+chrome => tests\secondTest.ts
