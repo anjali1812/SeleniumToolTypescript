@@ -32,7 +32,17 @@ export function init(cmdArgs: any, dirPath:string, filePath:string){
     if (!fs.existsSync(globalConfig.test.resultfolder + "/video"))
         fs.mkdirSync(globalConfig.test.resultfolder + "/video", { recursive: true })
 
-    globalConfig.setDriver(cmdArgs.browser, cmdArgs.parallelRun)
+    if(cmdArgs.docker){
+        console.log("DOCKER RUN")
+
+        let capabilities= {
+            "browserName": cmdArgs.browser,
+        }
+
+        globalConfig.setDriver(cmdArgs.browser, cmdArgs.docker)
+    }else{
+        globalConfig.setDriver(cmdArgs.browser)
+    }
 
     reporter.setLogger()
     
@@ -45,31 +55,33 @@ export async function videoConverter() {
         let videoDirPath= path.resolve(globalConfig.test.resultfolder+"/video")
         let imagesDirPath= path.resolve(globalConfig.test.resultfolder+"/screenshots")
 
-        let videoFilePath= path.resolve(videoDirPath + "/" + globalConfig.test.testname)
+        if( fs.readdirSync(imagesDirPath).length > 0){
+            let videoFilePath= path.resolve(videoDirPath + "/" + globalConfig.test.testname)
 
-        fs.mkdirSync(globalConfig.test.resultfolder + "/temp", { recursive: true })
-        let tempDirpath= path.resolve(globalConfig.test.resultfolder + "/temp")
-
-        let images = fs.readdirSync(imagesDirPath)
-
-        for(let i=0; i<images.length;i++){
-            let image= await Jimp.read(imagesDirPath+"\\"+images[i]) ;
-            image.writeAsync(tempDirpath + "\\" + (i+1) + ".png")
-        }
-
-        console.log("Encoding" );
-        await exec(`"${pathToFfmpeg}" -start_number 1 -i ${tempDirpath}\\%d.png -vcodec ${videoEncoder} -filter:v "setpts=4.0*PTS" ${videoDirPath}\\tempVideo.mp4`);
-
-        if(fs.existsSync(videoDirPath+ "\\tempVideo.mp4")){
-            console.log("Slowing down");
-            await exec(`"${pathToFfmpeg}" -i ${videoDirPath}\\tempVideo.mp4 -vf "setpts=10.0*PTS" ${videoFilePath}.mp4`);
-        }
-        else{
-            await reporter.fail("No Video Created")
-        }
-
-        fs.rmSync(tempDirpath, { recursive: true, force: true })
-        fs.unlinkSync(videoDirPath+ "\\tempVideo.mp4")
+            fs.mkdirSync(globalConfig.test.resultfolder + "/temp", { recursive: true })
+            let tempDirpath= path.resolve(globalConfig.test.resultfolder + "/temp")
+    
+            let images = fs.readdirSync(imagesDirPath)
+    
+            for(let i=0; i<images.length;i++){
+                let image= await Jimp.read(imagesDirPath+"\\"+images[i]) ;
+                image.writeAsync(tempDirpath + "\\" + (i+1) + ".png")
+            }
+    
+            console.log("Encoding" );
+            await exec(`"${pathToFfmpeg}" -start_number 1 -i ${tempDirpath}\\%d.png -vcodec ${videoEncoder} -filter:v "setpts=4.0*PTS" ${videoDirPath}\\tempVideo.mp4`);
+    
+            if(fs.existsSync(videoDirPath+ "\\tempVideo.mp4")){
+                console.log("Slowing down");
+                await exec(`"${pathToFfmpeg}" -i ${videoDirPath}\\tempVideo.mp4 -vf "setpts=10.0*PTS" ${videoFilePath}.mp4`);
+            }
+            else{
+                await reporter.fail("No Video Created")
+            }
+    
+            fs.rmSync(tempDirpath, { recursive: true, force: true })
+            fs.unlinkSync(videoDirPath+ "\\tempVideo.mp4")
+        }       
         
     } catch (error) {
         console.log("An error occurred:", error);

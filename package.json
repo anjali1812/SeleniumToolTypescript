@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "serial": "ts-node lib/selenium-runnrer-serial.ts",
-    "parallel": "ts-node lib/selenium-runner-parallel.ts"
+    "serial": "ts-node lib/common/selenium-runnrer-serial.ts",
+    "parallel": "ts-node lib/common/selenium-runner-parallel.ts",
+    "docker": "docker-compose -f docker-compose.yml up"
   },
   "devDependencies": {
     "@types/chai": "^4.3.5",
