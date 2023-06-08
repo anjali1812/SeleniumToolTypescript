@@ -37,7 +37,7 @@ export function init(cmdArgs: any, dirPath:string, filePath:string){
     if(cmdArgs.docker){
         console.log("DOCKER RUN")
         globalConfig.test.execType= "docker"
-        globalConfig.setDriver(cmdArgs.browser, cmdArgs.docker)
+        globalConfig.setDriver(cmdArgs.browser, "true")
     }else{
         globalConfig.setDriver(cmdArgs.browser)
     }
