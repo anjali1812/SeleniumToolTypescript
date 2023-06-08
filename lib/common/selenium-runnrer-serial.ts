@@ -41,7 +41,7 @@ function run_spec() {
 
    for (let i = 0; i < spec_array_with_result_folder.length; i++) {
       if (spec_array_with_result_folder[i].split(" => ").length == 4) {
-         let baseCommand = "npx mocha --require ts-node/register --browser chrome --diff true --full-trace true --no-timeouts --reporter mochawesome --reporter-options reportDir=results/_serial/TEMP_RESULT_FOLDER_TEMP,reportFilename=selenium-report,reportPageTitle=Mochawesome,embeddedScreenshots=true,charts=true,html=true,json=true,overwrite=true,inlineAssets=true,saveAllAttempts=false,code=false,quiet=false,ignoreVideos=true,showPending=false,autoOpen=false --docker --record --spec ";
+         let baseCommand = "npx mocha --require ts-node/register --browser chrome --diff true --full-trace true --no-timeouts --reporter mochawesome --reporter-options reportDir=results/_serial/TEMP_RESULT_FOLDER_TEMP,reportFilename=selenium-report,reportPageTitle=Mochawesome,embeddedScreenshots=true,charts=true,html=true,json=true,overwrite=true,inlineAssets=true,saveAllAttempts=false,code=false,quiet=false,ignoreVideos=true,showPending=false,autoOpen=false --record --spec ";
 
          baseCommand = baseCommand.replace("--browser chrome", "--browser " + spec_array_with_result_folder[i].split(" => ")[0]);
          baseCommand = baseCommand + spec_array_with_result_folder[i].split(" => ")[1];
@@ -76,7 +76,7 @@ function run_spec() {
    console.log("\nReport folder will be as below...\n");
 
    for (let i = 0; i < spec_array_with_result_folder.length; i++) {
-      let report_folder_path = path.resolve(__dirname, "../results/_serial/" + spec_array_with_result_folder[i].split(" => ")[3] + "/" + spec_array_with_result_folder[i].split(" => ")[2]);
+      let report_folder_path = path.resolve(__dirname, "../../results/_serial/" + spec_array_with_result_folder[i].split(" => ")[3] + "/" + spec_array_with_result_folder[i].split(" => ")[2]);
       let result_path = String("Spec " + (i + 1) + " Report => " + report_folder_path + "/selenium-report.html");
       if (system.startsWith("win")) {
          result_path = result_path.replaceAll("/", "\\");

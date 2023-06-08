@@ -76,7 +76,7 @@ function run_spec() {
    console.log("\nReport folder will be as below...\n");
 
    for (let i = 0; i < spec_array_with_result_folder.length; i++) {
-      let report_folder_path = path.resolve(__dirname, "../results/_parallel/" + spec_array_with_result_folder[i].split(" => ")[3] + "/" + spec_array_with_result_folder[i].split(" => ")[2]);
+      let report_folder_path = path.resolve(__dirname, "../../results/_parallel/" + spec_array_with_result_folder[i].split(" => ")[3] + "/" + spec_array_with_result_folder[i].split(" => ")[2]);
       let result_path = String("Spec " + (i + 1) + " Report => " + report_folder_path + "/selenium-report.html");
       if (system.startsWith("win")) {
          result_path = result_path.replaceAll("/", "\\");

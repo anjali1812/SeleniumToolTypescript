@@ -29,16 +29,14 @@ export function init(cmdArgs: any, dirPath:string, filePath:string){
         fs.mkdirSync(globalConfig.test.resultfolder + "/screenshots", { recursive: true })
     if (!fs.existsSync(globalConfig.test.resultfolder + "/downloads"))
         fs.mkdirSync(globalConfig.test.resultfolder + "/downloads", { recursive: true })
-    if (!fs.existsSync(globalConfig.test.resultfolder + "/video"))
-        fs.mkdirSync(globalConfig.test.resultfolder + "/video", { recursive: true })
+    if (!fs.existsSync(globalConfig.test.resultfolder + "/videos"))
+        fs.mkdirSync(globalConfig.test.resultfolder + "/videos", { recursive: true })
+
+    globalConfig.test.browser= cmdArgs.browser
 
     if(cmdArgs.docker){
         console.log("DOCKER RUN")
-
-        let capabilities= {
-            "browserName": cmdArgs.browser,
-        }
-
+        globalConfig.test.execType= "docker"
         globalConfig.setDriver(cmdArgs.browser, cmdArgs.docker)
     }else{
         globalConfig.setDriver(cmdArgs.browser)
@@ -49,43 +47,53 @@ export function init(cmdArgs: any, dirPath:string, filePath:string){
 }
 
 export async function videoConverter() {
-    const videoEncoder = "h264"
-    try {
 
-        let videoDirPath= path.resolve(globalConfig.test.resultfolder+"/video")
-        let imagesDirPath= path.resolve(globalConfig.test.resultfolder+"/screenshots")
+    if( globalConfig.test.execType!="docker" ){
 
-        if( fs.readdirSync(imagesDirPath).length > 0){
-            let videoFilePath= path.resolve(videoDirPath + "/" + globalConfig.test.testname)
-
-            fs.mkdirSync(globalConfig.test.resultfolder + "/temp", { recursive: true })
-            let tempDirpath= path.resolve(globalConfig.test.resultfolder + "/temp")
+        const videoEncoder = "h264"
+        try {
     
-            let images = fs.readdirSync(imagesDirPath)
+            let videoDirPath= path.resolve(globalConfig.test.resultfolder+"/videos")
+            let imagesDirPath= path.resolve(globalConfig.test.resultfolder+"/screenshots")
     
-            for(let i=0; i<images.length;i++){
-                let image= await Jimp.read(imagesDirPath+"\\"+images[i]) ;
-                image.writeAsync(tempDirpath + "\\" + (i+1) + ".png")
-            }
+            if( fs.readdirSync(imagesDirPath).length > 0){
+                let videoFilePath= path.resolve(videoDirPath + "/" + globalConfig.test.testname)
     
-            console.log("Encoding" );
-            await exec(`"${pathToFfmpeg}" -start_number 1 -i ${tempDirpath}\\%d.png -vcodec ${videoEncoder} -filter:v "setpts=4.0*PTS" ${videoDirPath}\\tempVideo.mp4`);
-    
-            if(fs.existsSync(videoDirPath+ "\\tempVideo.mp4")){
-                console.log("Slowing down");
-                await exec(`"${pathToFfmpeg}" -i ${videoDirPath}\\tempVideo.mp4 -vf "setpts=10.0*PTS" ${videoFilePath}.mp4`);
-            }
-            else{
-                await reporter.fail("No Video Created")
-            }
-    
-            fs.rmSync(tempDirpath, { recursive: true, force: true })
-            fs.unlinkSync(videoDirPath+ "\\tempVideo.mp4")
-        }       
+                fs.mkdirSync(globalConfig.test.resultfolder + "/temp", { recursive: true })
+                let tempDirpath= path.resolve(globalConfig.test.resultfolder + "/temp")
         
-    } catch (error) {
-        console.log("An error occurred:", error);
+                let images = fs.readdirSync(imagesDirPath)
+        
+                for(let i=0; i<images.length;i++){
+                    let image= await Jimp.read(imagesDirPath+"\\"+images[i]) ;
+                    image.writeAsync(tempDirpath + "\\" + (i+1) + ".png")
+                }
+        
+                console.log("Encoding" );
+                await exec(`"${pathToFfmpeg}" -start_number 1 -i ${tempDirpath}\\%d.png -vcodec ${videoEncoder} -filter:v "setpts=4.0*PTS" ${videoDirPath}\\tempVideo.mp4`);
+        
+                if(fs.existsSync(videoDirPath+ "\\tempVideo.mp4")){
+                    console.log("Slowing down");
+                    await exec(`"${pathToFfmpeg}" -i ${videoDirPath}\\tempVideo.mp4 -vf "setpts=10.0*PTS" ${videoFilePath}.mp4`);
+                }
+                else{
+                    await reporter.fail("No Video Created")
+                }
+        
+                fs.rmSync(tempDirpath, { recursive: true, force: true })
+                fs.unlinkSync(videoDirPath+ "\\tempVideo.mp4")
+            }       
+            
+        } catch (error) {
+            console.log("An error occurred:", error);
+        }
+    }else{
+        // cmd.run("docker-compose -f docker-compose.yml down")
+        // await sleep(10)
+        // fs.copyFileSync(path.resolve("results/video/testRunVideo.mp4") , path.resolve(globalConfig.test.resultfolder+ "/videos/" + globalConfig.test.testname+ "_docker.mp4"))
+        // fs.unlinkSync(path.resolve("results/video/testRunVideo.mp4"))
     }
+    
 
 };
 
