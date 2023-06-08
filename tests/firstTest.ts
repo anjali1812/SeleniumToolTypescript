@@ -57,6 +57,9 @@ describe("dummy test", function(){
         await uihelper.launchUrl("https://svadhi.globalvoxprojects.com/")
         await uihelper.login("svadhi@admin.com","Admin@1234","Login")
         await uihelper.logout()
+
+        await uihelper.login("svadhi@admin.com","Admin@1234","Login")
+        await uihelper.logout()
     })
 
     afterEach(async function(){

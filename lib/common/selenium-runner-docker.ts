@@ -55,9 +55,15 @@ function run_spec() {
       let ymlJson = {
         version : '3',
         services : {
+          'selenium-hub': {
+            image: 'selenium/hub:latest',
+            container_name: 'selenium-hub',
+            ports: [ '4442:4442', '4443:4443', '4444:4444' ]
+          },
           [browserName] : {
             image: 'selenium/node-'+browserName+':latest',
             shm_size: '2gb',
+            depends_on: [ 'selenium-hub' ],
             environment: [
               'SE_EVENT_BUS_HOST=selenium-hub',
               'SE_EVENT_BUS_PUBLISH_PORT=4442',
@@ -77,6 +83,8 @@ function run_spec() {
 
       let updateYml= YAML.safeDump(ymlJson)
       // console.log(updateYml)
+      
+      // .yml file for each testcase/spec such as <testname>_<browsername>.yml will be created under docker_compose directory 
       fs.writeFileSync( path.resolve("./")+"\\docker_compose\\" + spec_array_with_result_folder[i].split(" => ")[3] + "_" + browserName + ".yml" , updateYml )
 
       spec_array_with_final_cmd.push( 
@@ -100,38 +108,16 @@ function run_spec() {
 
   fs.writeFileSync("./selenium-docker-final.txt", spec_array_with_final_cmd.toString().replaceAll("\r", "").replaceAll("\n,", "\n"));
 
-  // console.log("\n==================== Execution Starts ====================\n");
+  console.log("\n==================== Selenium Report Files ====================\n");
 
-  // const docker_runner = fs.readFileSync(path.resolve(__filename, "../../../selenium-docker-final.txt"), "utf-8").replaceAll("\r", "");
-  // const docker_spec = docker_runner.split("\n");
-
-  // // console.log(docker_spec)
-
-  // for(let i=0;i< docker_spec.length ; i++){
-  //   if(docker_spec[i] != null && docker_spec[i]!= ''){
-  //     let attributes= docker_spec[i].split("`")
-  //     console.log(attributes[3])
-  
-  //     cmd.run("docker network rm grid &>/dev/null ; docker rm $(docker ps --all -q) -f &>/dev/null")
-  //     cmd.run("docker network create grid")
-  //     cmd.run("docker run --env SE_VNC_NO_PASSWORD=1 --env SE_VNC_VIEW_ONLY=1 --net grid -d -p 4444:4444 -p 2869:2869 --name selenium --shm-size='2g' selenium/standalone-"+attributes[1]+":latest")
-  //     cmd.run("docker run -d --net grid --name video -v ./"+attributes[2]+"/recordings:/videos selenium/video:latest")
-  //     cmd.run(attributes[3])
-  //     cmd.run("docker stop video &>/dev/null && docker rm video &>/dev/null ; docker stop selenium &>/dev/null && docker rm selenium &>/dev/null ; docker network rm grid &>/dev/null ; docker rm $(docker ps --all -q) -f &>/dev/null")
-  
-  //   }
-  // }
-
-  // console.log("\n==================== Selenium Report Files ====================\n");
-
-  // for (let i = 0; i < spec_array_with_result_folder.length; i++) {
-  //   let report_folder_path = path.resolve(__dirname, "../../../results/_docker/" + spec_array_with_result_folder[i].split(" => ")[3] + "/" + spec_array_with_result_folder[i].split(" => ")[2]);
-  //   let result_path = String("Spec " + (i + 1) + " Report => " + report_folder_path + "/selenium-report.html");
-  //   if (system.startsWith("win")) {
-  //     result_path = result_path.replaceAll("/", "\\\\");
-  //   }
-  //   console.log(result_path);
-  // }
+  for (let i = 0; i < spec_array_with_result_folder.length; i++) {
+    let report_folder_path = path.resolve(__dirname, "../../../results/_docker/" + spec_array_with_result_folder[i].split(" => ")[3] + "/" + spec_array_with_result_folder[i].split(" => ")[2]);
+    let result_path = String("Spec " + (i + 1) + " Report => " + report_folder_path + "/selenium-report.html");
+    if (system.startsWith("win")) {
+      result_path = result_path.replaceAll("/", "\\\\");
+    }
+    console.log(result_path);
+  }
 
   return;
 }

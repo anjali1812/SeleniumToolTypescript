@@ -1,11 +1,11 @@
 import { afterEach, before, beforeEach } from "mocha";
-import * as uihelper from "../lib/uihelper";
-import * as utilsCommon from "../lib/utilsCommon";
+import * as uihelper from "../lib//common/uihelper";
+import * as utilsCommon from "../lib/common/utilsCommon";
 import * as globalConfig from "../lib/common/config"
 // const addContext = require('mochawesome/addContext');
 const argv = require('yargs').argv
 
-import * as reporter from "../lib/reporter"
+import * as reporter from "../lib/common/reporter"
 import { By, Key, WebDriver, until } from "selenium-webdriver";
 
 describe("dummy test", function(){
