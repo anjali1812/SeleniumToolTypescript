@@ -65,12 +65,12 @@ export async function verifyToastMessage(textToBeVerified: string){
 
     if(toastElem.length > 0){
         let toastMsg= await toastElem[0].getAttribute("innerText")
-        await reporter.info("Toast Message On UI : " + toastMsg)
+        await reporter.info("Toast Message On UI : " + toastMsg, false)
 
         if( toastMsg.toLowerCase().includes(textToBeVerified) ){
             await reporter.pass("Toast message [ " + textToBeVerified + " ] verified successfully.", true);
         } else {
-            await reporter.fail("Toast message [ " + textToBeVerified + " ] not verified successfully.");
+            await reporter.fail("Toast message [ " + textToBeVerified + " ] not verified successfully.", true);
         }
     }else{
         await reporter.fail("Toast not displayed on UI", true)

@@ -41,7 +41,7 @@ function run_spec() {
 
   for (let i = 0; i < spec_array_with_result_folder.length; i++) {
     if (spec_array_with_result_folder[i].split(" => ").length == 4) {
-      let baseCommand = "npx mocha --require 'ts-node/register' --browser chrome --diff true --full-trace true --no-timeouts --reporter mochawesome --reporter-options 'reportDir=results/_docker/TEMP_RESULT_FOLDER_TEMP,reportFilename='selenium-report',reportPageTitle='Mochawesome',embeddedScreenshots=true,charts=true,html=true,json=true,overwrite=true,inlineAssets=true,saveAllAttempts=false,code=false,quiet=false,ignoreVideos=true,showPending=false,autoOpen=false' --spec ";
+      let baseCommand = "npx mocha --require 'ts-node/register' --browser chrome --diff true --full-trace true --no-timeouts --reporter mochawesome --reporter-options 'reportDir=results/_docker/TEMP_RESULT_FOLDER_TEMP,reportFilename='selenium-report',reportPageTitle='Mochawesome',embeddedScreenshots=true,charts=true,html=true,json=true,overwrite=true,inlineAssets=true,saveAllAttempts=false,code=false,quiet=false,ignoreVideos=true,showPending=true,showSkipped=true,autoOpen=false' --spec ";
       baseCommand = baseCommand.replace("--browser chrome", "--docker true --browser " + spec_array_with_result_folder[i].split(" => ")[0]);
       baseCommand = baseCommand + spec_array_with_result_folder[i].split(" => ")[1];
       baseCommand = baseCommand.replace("TEMP_RESULT_FOLDER_TEMP", spec_array_with_result_folder[i].split(" => ")[3] + "/" + spec_array_with_result_folder[i].split(" => ")[2]);
@@ -83,8 +83,10 @@ function run_spec() {
 
       let updateYml= YAML.safeDump(ymlJson)
       // console.log(updateYml)
-      
+
       // .yml file for each testcase/spec such as <testname>_<browsername>.yml will be created under docker_compose directory 
+      if( !fs.existsSync("./docker_compose"))
+        fs.mkdirSync("./docker_compose", { recursive: true });
       fs.writeFileSync( path.resolve("./")+"\\docker_compose\\" + spec_array_with_result_folder[i].split(" => ")[3] + "_" + browserName + ".yml" , updateYml )
 
       spec_array_with_final_cmd.push( 
@@ -106,7 +108,7 @@ function run_spec() {
 
   // console.log(spec_array_with_final_cmd);
 
-  fs.writeFileSync("./selenium-docker-final.txt", spec_array_with_final_cmd.toString().replaceAll("\r", "").replaceAll("\n,", "\n"));
+  fs.writeFileSync("./selenium-final-runner.txt", spec_array_with_final_cmd.toString().replaceAll("\r", "").replaceAll("\n,", "\n"));
 
   console.log("\n==================== Selenium Report Files ====================\n");
 
@@ -114,7 +116,7 @@ function run_spec() {
     let report_folder_path = path.resolve(__dirname, "../../../results/_docker/" + spec_array_with_result_folder[i].split(" => ")[3] + "/" + spec_array_with_result_folder[i].split(" => ")[2]);
     let result_path = String("Spec " + (i + 1) + " Report => " + report_folder_path + "/selenium-report.html");
     if (system.startsWith("win")) {
-      result_path = result_path.replaceAll("/", "\\\\");
+      result_path = result_path.replaceAll("/", "\\");
     }
     console.log(result_path);
   }

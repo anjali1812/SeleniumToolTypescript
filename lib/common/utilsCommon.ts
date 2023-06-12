@@ -48,7 +48,7 @@ export function init(cmdArgs: any, dirPath:string, filePath:string){
 
 export async function videoConverter() {
 
-    if( globalConfig.test.execType!="docker" ){
+    if( globalConfig.test.execType!=="docker" ){
 
         const videoEncoder = "h264"
         try {
@@ -87,11 +87,6 @@ export async function videoConverter() {
         } catch (error) {
             console.log("An error occurred:", error);
         }
-    }else{
-        // cmd.run("docker-compose -f docker-compose.yml down")
-        // await sleep(10)
-        // fs.copyFileSync(path.resolve("results/video/testRunVideo.mp4") , path.resolve(globalConfig.test.resultfolder+ "/videos/" + globalConfig.test.testname+ "_docker.mp4"))
-        // fs.unlinkSync(path.resolve("results/video/testRunVideo.mp4"))
     }
     
 
