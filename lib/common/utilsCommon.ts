@@ -3,12 +3,9 @@ import * as reporter from "./reporter"
 import * as fs from "fs";
 import * as path from "path";
 
-const pathToFfmpeg = require("ffmpeg-static");
 const util = require("util");
-
 const exec = util.promisify(require("child_process").exec);
 const Jimp = require("jimp");
-const cmd = require("node-cmd");
 
 export function init(cmdArgs: any, dirPath:string, filePath:string){
    
@@ -70,11 +67,11 @@ export async function videoConverter() {
                 }
         
                 console.log("Encoding" );
-                await exec(`"${pathToFfmpeg}" -start_number 1 -i ${tempDirpath}\\%d.png -vcodec ${videoEncoder} -filter:v "setpts=4.0*PTS" ${videoDirPath}\\tempVideo.mp4`);
+                await exec(`ffmpeg -start_number 1 -i ${tempDirpath}\\%d.png -vcodec ${videoEncoder} -filter:v "setpts=4.0*PTS" ${videoDirPath}\\tempVideo.mp4`);
         
                 if(fs.existsSync(videoDirPath+ "\\tempVideo.mp4")){
                     console.log("Slowing down");
-                    await exec(`"${pathToFfmpeg}" -i ${videoDirPath}\\tempVideo.mp4 -vf "setpts=10.0*PTS" ${videoFilePath}.mp4`);
+                    await exec(`ffmpeg -i ${videoDirPath}\\tempVideo.mp4 -vf "setpts=10.0*PTS" ${videoFilePath}.mp4`);
                 }
                 else{
                     await reporter.fail("No Video Created")

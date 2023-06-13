@@ -4,19 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "serial": "ts-node lib/common/selenium-runnrer-serial.ts",
-    "parallel": "ts-node lib/common/selenium-runner-parallel.ts",
+    "serial": "ts-node lib/common/selenium-runner-serial.ts && bash lib/common/bash_serial.sh",
+    "parallel": "ts-node lib/common/selenium-runner-parallel.ts && bash lib/common/bash_parallel.sh",
     "docker": "ts-node lib/common/selenium-runner-docker.ts && bash lib/common/bash_docker.sh"
   },
   "devDependencies": {
     "@types/chai": "^4.3.5",
-    "@types/ffmpeg-static": "^3.0.1",
-    "@types/js-yaml": "^4.0.5",
     "@types/mocha": "^10.0.1",
     "@types/selenium-webdriver": "^4.1.14",
     "chai": "^4.3.7",
     "mocha": "^10.2.0",
-    "node-cmd": "^5.0.0",
     "path": "^0.12.7",
     "random-test-values": "^2.0.0",
     "selenium": "^2.20.0",
@@ -25,10 +22,8 @@
     "typescript": "^5.0.4",
     "dateformat": "4.6.3",
     "desktop-screenshot": "^0.1.1",
-    "ffmpeg-static": "^4.2.1",
     "fs": "^0.0.1-security",
     "jimp": "^0.9.3",
-    "js-yaml": "^3.14.1",
     "log4js": "^6.9.1",
     "mochawesome": "^7.1.3",
     "yargs": "^17.7.2"

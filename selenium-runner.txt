@@ -1,2 +1,2 @@
 chrome => tests\firstTest.ts
-firefox => tests\secondTest.ts
+foo => tests\secondTest.ts
