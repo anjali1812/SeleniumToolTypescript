@@ -1,2 +1,1 @@
-chrome => tests\firstTest.ts
-foo => tests\secondTest.ts
+chrome => tests\dummycase.ts

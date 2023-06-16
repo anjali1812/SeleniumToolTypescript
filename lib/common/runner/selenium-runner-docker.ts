@@ -1,10 +1,10 @@
 import * as fs from "fs";
-import { getTimeStamp, sleep } from "./utilsCommon";
+import { getTimeStamp, sleep } from "../utilsCommon";
 import * as path from "path";
 import * as os from "os";
 
 function run_spec() {
-  const sel_runnner = fs.readFileSync(path.resolve(__filename, "../../../selenium-runner.txt"), "utf-8");
+  const sel_runnner = fs.readFileSync(path.resolve("selenium-runner.txt"), "utf-8");
   const spec_array = sel_runnner.split("\n");
   const spec_array_with_result_folder: string[] = [];
   const spec_array_with_final_cmd: string[] = [];
@@ -59,11 +59,11 @@ function run_spec() {
         fs.mkdirSync(final_result_folder, { recursive: true });
       }
 
-      let recording_folder = final_result_folder + "/recordings";
+      let recording_folder = final_result_folder + "/videos";
       if (!fs.existsSync(recording_folder)) {
         fs.mkdirSync(recording_folder, { recursive: true });
       }
-      recording_folder = path.resolve(final_result_folder + "/recordings");
+      recording_folder = path.resolve(final_result_folder + "/videos");
 
       if (os.type().toLocaleLowerCase().startsWith("win")) {
         recording_folder = recording_folder.replaceAll("\\", "/");
@@ -102,17 +102,15 @@ function run_spec() {
   // console.log(spec_array_with_final_cmd);
 
   if (os.arch() == "arm64") {
-    fs.writeFileSync("selenium-final-runner.txt", "seleniarm\n" + spec_array_with_final_cmd.toString().replaceAll("\n,", "\n"));
+    fs.writeFileSync(__dirname.replaceAll("\\","/")+"/selenium-final-runner.txt", "seleniarm\n" + spec_array_with_final_cmd.toString().replaceAll("\n,", "\n"));
   } else {
-    fs.writeFileSync("selenium-final-runner.txt", "selenium\n" + spec_array_with_final_cmd.toString().replaceAll("\n,", "\n"));
+    fs.writeFileSync(__dirname.replaceAll("\\","/")+"/selenium-final-runner.txt" , "selenium\n" + spec_array_with_final_cmd.toString().replaceAll("\n,", "\n"));
   }
-
-  // fs.writeFileSync("selenium-final-runner.txt", system.uname().machine.toLowerCase() + "\n" + spec_array_with_final_cmd.toString().replaceAll("\n,", "\n"));
 
   console.log("\n==================== Selenium Report Files ====================\n");
 
   for (let i = 0; i < spec_array_with_result_folder.length; i++) {
-    let report_folder_path = "../../results/_docker/" + spec_array_with_result_folder[i].split(" => ")[3] + "/" + spec_array_with_result_folder[i].split(" => ")[2];
+    let report_folder_path = path.resolve("results").replaceAll("\\", "/") + "/_docker/" + spec_array_with_result_folder[i].split(" => ")[3] + "/" + spec_array_with_result_folder[i].split(" => ")[2];
     let log = path.resolve(__dirname, String(report_folder_path + "/selenium-log.txt"));
     let report = path.resolve(__dirname, String(report_folder_path + "/selenium-report.html"));
     console.log(log);

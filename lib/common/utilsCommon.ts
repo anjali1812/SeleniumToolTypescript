@@ -13,6 +13,9 @@ export function init(cmdArgs: any, dirPath:string, filePath:string){
 
     globalConfig.test.testname=  filePath.replace(dirPath + "\\", "").split(".")[0]
 
+    globalConfig.test.testfolder= path.resolve("./tests").replaceAll("\\","/")
+    setAbsolutePath()
+
     let ro = String(cmdArgs["reporter-options"]).split(",");
     ro.forEach(function (o: string) {
        if (o.startsWith("reportDir")) {
@@ -41,6 +44,22 @@ export function init(cmdArgs: any, dirPath:string, filePath:string){
 
     reporter.setLogger()
     
+}
+
+function setAbsolutePath(){
+    let tmpPath= globalConfig.test.testfolder.replaceAll("\\","/").split("/")
+    let absPath= tmpPath[0]
+
+    for (let i = 1; i < tmpPath.length; i++) {
+        if( tmpPath[i].equalsIgnoreCase("SeleniumToolTypescript") )
+            break
+        else
+            absPath= absPath + "/" + tmpPath[i]
+    }
+
+    absPath= absPath + "/" + "SeleniumToolTypescript"
+    globalConfig.test.abspath= absPath
+    console.log("Absolute Path : " + globalConfig.test.abspath)
 }
 
 export async function videoConverter() {
