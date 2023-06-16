@@ -1,0 +1,6 @@
+npm test serial
+    - To run the cases serially
+npm test parallel
+    - To run the cases parallely
+npm test docker
+    - To run the case in docker

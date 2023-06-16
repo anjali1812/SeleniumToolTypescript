@@ -4,9 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "serial": "ts-node lib/common/runner/selenium-runner-serial.ts && bash lib/common/runner/bash_serial.sh",
-    "parallel": "ts-node lib/common/runner/selenium-runner-parallel.ts && bash lib/common/runner/bash_parallel.sh",
-    "docker": "ts-node lib/common/runner/selenium-runner-docker.ts && bash lib/common/runner/bash_docker.sh"
+    "test" : "bash lib/common/runner/testrunner.sh"
   },
   "devDependencies": {
     "@types/chai": "^4.3.5",
