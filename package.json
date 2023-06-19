@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test" : "bash lib/common/runner/testrunner.sh"
+    "test" : "bash lib/runner/testrunner.sh"
   },
   "devDependencies": {
     "@types/chai": "^4.3.5",

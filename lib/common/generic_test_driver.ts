@@ -1,7 +1,6 @@
 import * as uihelper from "./uihelper";
 import * as utilsCommon from "./utilsCommon";
 import * as reporter from "./reporter"
-import * as dummy from "./dummy"
 import * as globalConfig from "./config"
 import { assert } from "chai";
 
@@ -12,7 +11,7 @@ export function runTest(argv: any, dirname: string, filename: string){
     
     before(async function () {
         utilsCommon.init(argv, dirname, filename)
-        let teststeps = await dummy.getCsvSteps();
+        let teststeps = await utilsCommon.getCsvSteps();
     
         describe(globalConfig.test.testname, async function () {
             beforeEach(async function () {
@@ -25,7 +24,7 @@ export function runTest(argv: any, dirname: string, filename: string){
                 for (let i = 0; i < teststeps.length; i++) {
                     const step = teststeps[i];
                     (step.zeroColumn=='skip' ? xit : it)(step.descr, async function () {
-                        await dummy.executeStep(step)
+                        await utilsCommon.executeStep(step)
                         
                         if (reporter.step_status.fail)
                             assert.fail(reporter.step_status.msg)

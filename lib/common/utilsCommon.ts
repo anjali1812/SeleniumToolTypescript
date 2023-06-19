@@ -2,19 +2,27 @@ import * as globalConfig from "./config";
 import * as reporter from "./reporter"
 import * as fs from "fs";
 import * as path from "path";
+import * as os from "os";
+import "../common/extensions"
 
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);
 const Jimp = require("jimp");
+const papa = require("papaparse");
+const _ = require("lodash")
 
 export function init(cmdArgs: any, dirPath:string, filePath:string){
    
     console.log("\n" + JSON.stringify(cmdArgs) + "\n")
 
-    globalConfig.test.testname=  filePath.replace(dirPath + "\\", "").split(".")[0]
+    globalConfig.test.testname = filePath.replace(dirPath + "/", "").replace("ts", "");
+    if (os.type().toLocaleLowerCase().startsWith("win")) {
+      globalConfig.test.testname = filePath.replace(dirPath + "\\", "").replace("ts", "");
+    }
 
-    globalConfig.test.testfolder= path.resolve("./tests").replaceAll("\\","/")
-    setAbsolutePath()
+    globalConfig.test.abspath= path.resolve(__dirname,"../../../SeleniumToolTypescript").replaceAll("\\","/")
+    globalConfig.test.tsPath= filePath
+    globalConfig.test.csvPath= filePath.replaceAll("\\","/").replace(".ts",".csv")
 
     let ro = String(cmdArgs["reporter-options"]).split(",");
     ro.forEach(function (o: string) {
@@ -43,23 +51,124 @@ export function init(cmdArgs: any, dirPath:string, filePath:string){
     }
 
     reporter.setLogger()
-    
 }
 
-function setAbsolutePath(){
-    let tmpPath= globalConfig.test.testfolder.replaceAll("\\","/").split("/")
-    let absPath= tmpPath[0]
+export function getTimeStamp() {
+    const runDate = new Date();
+    return String(runDate.getFullYear() + "_" + String(Number(runDate.getMonth() + 1)).padStart(2, "0") + "_" + String(runDate.getDate()).padStart(2, "0") + "T" + String(runDate.getHours()).padStart(2, "0") + "_" + String(runDate.getMinutes()).padStart(2, "0") + "_" + String(runDate.getSeconds()).padStart(2, "0") + "_" + String(runDate.getMilliseconds()).padStart(3, "0"));
+}
+ 
+export async function sleep(seconds: number) {
+    const waitTill = new Date(new Date().getTime() + Number(seconds * 1000));
+    while (waitTill > new Date()) {}
+}
 
-    for (let i = 1; i < tmpPath.length; i++) {
-        if( tmpPath[i].equalsIgnoreCase("SeleniumToolTypescript") )
-            break
-        else
-            absPath= absPath + "/" + tmpPath[i]
+export async function getCsvSteps() {
+
+    let newSteps : any[] = []
+    let invalidCsv= false
+    let csvPath= globalConfig.test.csvPath
+
+    if( fs.existsSync(csvPath) ){
+        let keywords = await getKeywords()
+
+        let csvData= fs.readFileSync(csvPath).toString()
+        let csvParsedData = papa.parse(csvData, { delimiter: "," })
+        let csvSteps= csvParsedData.data
+    
+        for (let i = 0; i < csvSteps.length; i++) {
+            let step = csvSteps[i]
+            let newStep : any = {}
+            if(step && step.length>0){
+                let firstColumn= _.first(step)
+
+                if(firstColumn.toString().equalsIgnoreCase("skip")){
+                    newStep['zeroColumn']= firstColumn 
+                    step= _.drop(step)
+                    firstColumn= _.first(step).trim()
+                }
+
+                let api = _.find(keywords, function(item: any){
+                    return ( (item.name).toString().equalsIgnoreCase(firstColumn) )
+                })
+
+                if(api){
+                    newStep['api']= api.name
+                    newStep['path']=api.path
+                    newStep['descr']= api.descr
+                    newStep['data']= _.drop(step)
+
+                    newSteps.push(newStep)
+                }else {
+                    reporter.failAndContinue("Method '" + firstColumn + "' does not exists. Check and update csv")
+                    invalidCsv= true
+                }
+            }
+        }
+    }else{
+        console.error(csvPath + " CSV does not exists at given path")
+    }
+    // console.log(newSteps)
+    // console.log(">>>>>>>>>>>>>>>>>>>"+newSteps.length)
+
+    if(invalidCsv)
+        return []
+    else
+        return newSteps
+}
+
+async function getKeywords() {
+    let keywords= JSON.parse(fs.readFileSync(path.resolve("./apiNamesPathsDescr.json"), "utf-8")).items
+
+    return keywords
+}
+
+export async function executeStep(step: any) {
+    await reporter.info("Step [ " + step.api + " ]", false)
+    await reporter.info("Data [ " + step.data + " ]", false)
+
+    let dataMap= await convertStepArrayToMap(step.data)
+
+    let apiToCall = step.api
+    let libPath= globalConfig.test.abspath + "/" + step.path
+    let apis : any = await import(libPath)
+
+    if( apis[apiToCall] ){
+        if( (step.path).includes("uihelper") ){
+            let argsArray : any []= []
+            dataMap.forEach( value =>{
+                argsArray.push(value)
+            })
+    
+            await apis[apiToCall].apply(apis, argsArray )    
+        }else{
+            await apis[apiToCall].call(apis, dataMap)
+        }
+    }
+    else{
+        reporter.fail("Method '" + step.api + "' does not exists. Check and update csv.")
+    }
+}
+
+async function convertStepArrayToMap(data: string[]){
+    let map = new Map()
+    
+    for (let i = 0; i < data.length; i++) {
+        let d= data[i].trim()        
+
+        if(d.includes("=")){
+            let key= d.substring(0, d.indexOf("=")).trim()
+            let value = d.substring(d.indexOf("=")+1).trim()
+
+            if(value != ""){
+                map.set(key, value)
+            }
+        }else{
+            map.set("arg" + i, d)
+        }
     }
 
-    absPath= absPath + "/" + "SeleniumToolTypescript"
-    globalConfig.test.abspath= absPath
-    console.log("Absolute Path : " + globalConfig.test.abspath)
+    return map;
 }
 
 export async function videoConverter() {
@@ -107,15 +216,3 @@ export async function videoConverter() {
     
 
 };
-
-export function getTimeStamp() {
-    const runDate = new Date();
-    return String(runDate.getFullYear() + "_" + String(Number(runDate.getMonth() + 1)).padStart(2, "0") + "_" + String(runDate.getDate()).padStart(2, "0") + "T" + String(runDate.getHours()).padStart(2, "0") + "_" + String(runDate.getMinutes()).padStart(2, "0") + "_" + String(runDate.getSeconds()).padStart(2, "0") + "_" + String(runDate.getMilliseconds()).padStart(3, "0"));
- }
- 
-
-export async function sleep(seconds: number) {
-    const waitTill = new Date(new Date().getTime() + Number(seconds * 1000));
-    while (waitTill > new Date()) {}
-}
- 

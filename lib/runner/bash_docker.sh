@@ -1,4 +1,4 @@
-docker_cmd_tmp=`cat lib/common/runner/selenium-final-runner.txt`
+docker_cmd_tmp=`cat lib/runner/selenium-final-runner.txt`
 
 IFS=$'\n' read -a lines_tmp <<< "$docker_cmd_tmp"
 
@@ -6,7 +6,7 @@ sel_type="${lines_tmp[0]}"
 
 echo $sel_type
 
-tail -n +2 "lib/common/runner/selenium-final-runner.txt" > "lib/common/runner/selenium-final-runner.txt.tmp" && mv "lib/common/runner/selenium-final-runner.txt.tmp" "lib/common/runner/selenium-final-runner.txt"
+tail -n +2 "lib/runner/selenium-final-runner.txt" > "lib/runner/selenium-final-runner.txt.tmp" && mv "lib/runner/selenium-final-runner.txt.tmp" "lib/runner/selenium-final-runner.txt"
 
 echo -e "\n======================== Selenium Grid ========================"
 echo -e "\nhttp://localhost:4444"
@@ -56,5 +56,7 @@ docker stop "${sel_type}"-hub &>/dev/null && docker rm "${sel_type}"-hub
 docker rm $(docker ps --all -q) -f &>/dev/null
 docker network rm grid
 echo -e "<< exit >>"
+
+rm -f lib\\runner\\selenium-final-runner.txt
 
 exit

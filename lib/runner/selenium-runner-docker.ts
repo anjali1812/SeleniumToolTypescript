@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import { getTimeStamp, sleep } from "../utilsCommon";
+import { getTimeStamp, sleep } from "../common/utilsCommon";
 import * as path from "path";
 import * as os from "os";
 
@@ -15,6 +15,10 @@ function run_spec() {
   console.log("Below spec files / folders will be run serially in docker.\n");
 
   for (let i = 0; i < spec_array.length; i++) {
+    if (spec_array[i].startsWith("##") || !spec_array[i]) {
+      continue;
+    }
+    
     spec_array[i]= spec_array[i].replaceAll("\\","/")
     console.log(spec_array[i]);
 

@@ -1,1 +1,7 @@
-chrome => tests\dummycase.ts
+## before => browser name
+## after => spec runner path "relative path from project folder"
+## 
+## example mac : chrome => tests/dummy/dummycase.ts
+## example windows : chrome => tests\dummy\dummycase.ts
+## 
+chrome => tests\dummy\dummycase.ts

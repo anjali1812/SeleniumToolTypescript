@@ -1,0 +1,7 @@
+## before => folder path "relative path from project folder"
+## after => spec name
+## 
+## example mac : tests/dummy => dummydemo
+## example windows : tests\dummy => dummydemo
+## 
+tests\dummy => dummydemo
