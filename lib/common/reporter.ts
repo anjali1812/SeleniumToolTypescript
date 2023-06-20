@@ -24,6 +24,11 @@ export function clearContext() {
     step_status.fail = false
 }
 
+export async function debug(value: string) {
+    logger.debug(value);
+    return;
+}
+
 export async function info(message: string, capture?: boolean) {
     logger.info(message);
     let contMsg: any = {};
@@ -32,7 +37,7 @@ export async function info(message: string, capture?: boolean) {
 
     if (capture) {
         let imagePath = "/screenshots/" + await utilsCommon.getTimeStamp() + ".png";
-        await takeScreenshot(globalConfig.test.resultFolder + imagePath);
+        await takeScreenshot(globalConfig.test.resultfolder + imagePath);
         contMsg.img = "." + imagePath;
     }
 
@@ -50,7 +55,6 @@ export async function pass(message: string, capture?: boolean) {
         let imagePath = "/screenshots/" + await utilsCommon.getTimeStamp() + ".png"
         await takeScreenshot(globalConfig.test.resultfolder + imagePath)
         contMsg.img = "." + imagePath
-
     }
 
     contextMessages.push(contMsg)
@@ -100,7 +104,6 @@ export async function failAndContinue(message: string, capture?: boolean) {
 export async function takeScreenshot(imagePath: string) {
     let image = await globalConfig.driver.takeScreenshot()
     fs.writeFileSync(imagePath, image, 'base64')
-
 }
 
 export function addToContext(testContext: Mocha.Context) {

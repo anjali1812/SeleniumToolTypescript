@@ -9,6 +9,21 @@
             "name" : "login",
             "path" : "lib/common/uihelper",
             "descr" : "Login"
+        },
+        {
+            "name" : "setInInputText",
+            "path" : "lib/common/uihelper",
+            "descr" : "Set Text"
+        },
+        {
+            "name" : "clickButton",
+            "path" : "lib/common/uihelper",
+            "descr" : "Click"
+        },
+        {
+            "name" : "verifyToastMessage",
+            "path" : "lib/common/uihelper",
+            "descr" : "Verify Toast Message"
         }
     ]
 }

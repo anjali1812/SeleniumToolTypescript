@@ -157,11 +157,15 @@ async function convertStepArrayToMap(data: string[]) {
         let d = data[i].trim()
 
         if (d.includes("=")) {
-            let key = d.substring(0, d.indexOf("=")).trim()
-            let value = d.substring(d.indexOf("=") + 1).trim()
-
-            if (value != "") {
-                map.set(key, value)
+            if (d.includes("xpath")) {
+                map.set("arg" + i, d.substring(d.indexOf("xpath")))
+            }else{
+                let key = d.substring(0, d.indexOf("=")).trim()
+                let value = d.substring(d.indexOf("=") + 1).trim()
+    
+                if (value != "") {
+                    map.set(key, value)
+                }    
             }
         } else {
             map.set("arg" + i, d)
@@ -194,11 +198,11 @@ export async function videoConverter() {
                     image.writeAsync(tempDirpath + "\\" + (i + 1) + ".png")
                 }
 
-                console.log("Encoding");
+                // console.log("Encoding");
                 await exec(`ffmpeg -start_number 1 -i ${tempDirpath}\\%d.png -vcodec ${videoEncoder} -filter:v "setpts=4.0*PTS" ${videoDirPath}\\tempVideo.mp4`);
 
                 if (fs.existsSync(videoDirPath + "\\tempVideo.mp4")) {
-                    console.log("Slowing down");
+                    // console.log("Slowing down");
                     await exec(`ffmpeg -i ${videoDirPath}\\tempVideo.mp4 -vf "setpts=10.0*PTS" ${videoFilePath}.mp4`);
                 }
                 else {
