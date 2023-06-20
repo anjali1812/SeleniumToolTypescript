@@ -6,9 +6,9 @@ import * as fs from "fs";
 
 const addContext = require('mochawesome/addContext');
 const logger = getLogger()
-const dateFormat= require("dateformat")
+const dateFormat = require("dateformat")
 
-export let contextMessages : any[]=[]
+export let contextMessages: any[] = []
 
 export function setLogger() {
     configure({
@@ -21,35 +21,35 @@ export let step_status = { abort: false, fail: false, msg: "" }
 
 export function clearContext() {
     contextMessages = []
-    step_status.fail= false
+    step_status.fail = false
 }
 
 export async function info(message: string, capture?: boolean) {
     logger.info(message);
     let contMsg: any = {};
- 
+
     contMsg.text = "[" + dateFormat("yyyy-mm-dd HH:MM:ss") + "]" + "[INFO] : " + message;
- 
+
     if (capture) {
-       let imagePath = "/screenshots/" + await utilsCommon.getTimeStamp() + ".png";
-       await takeScreenshot(globalConfig.test.resultFolder + imagePath);
-       contMsg.img = "." + imagePath;
+        let imagePath = "/screenshots/" + await utilsCommon.getTimeStamp() + ".png";
+        await takeScreenshot(globalConfig.test.resultFolder + imagePath);
+        contMsg.img = "." + imagePath;
     }
- 
+
     contextMessages.push(contMsg);
     return;
 }
 
-export async function pass(message:string, capture?: boolean) {
+export async function pass(message: string, capture?: boolean) {
     logger.info(message)
-    let contMsg : any= {}
+    let contMsg: any = {}
 
-    contMsg.text= "[" + dateFormat("yyyy-mm-dd HH:MM:ss") + "]" + "[Pass] : " + message
+    contMsg.text = "[" + dateFormat("yyyy-mm-dd HH:MM:ss") + "]" + "[Pass] : " + message
 
-    if(capture){
+    if (capture) {
         let imagePath = "/screenshots/" + await utilsCommon.getTimeStamp() + ".png"
         await takeScreenshot(globalConfig.test.resultfolder + imagePath)
-        contMsg.img= "." + imagePath
+        contMsg.img = "." + imagePath
 
     }
 
@@ -57,58 +57,58 @@ export async function pass(message:string, capture?: boolean) {
     return;
 }
 
-export async function fail(message:string, capture?: boolean) {
+export async function fail(message: string, capture?: boolean) {
     logger.fatal(message)
-    let contMsg : any= {}
+    let contMsg: any = {}
 
-    contMsg.text= "[" + dateFormat("yyyy-mm-dd HH:MM:ss") + "]" + "[FAIL] : " + message
+    contMsg.text = "[" + dateFormat("yyyy-mm-dd HH:MM:ss") + "]" + "[FAIL] : " + message
 
-    if(capture){
+    if (capture) {
         let imagePath = "/screenshots/" + await utilsCommon.getTimeStamp() + ".png"
         await takeScreenshot(globalConfig.test.resultfolder + imagePath)
-        contMsg.img= "." + imagePath
+        contMsg.img = "." + imagePath
 
     }
 
     contextMessages.push(contMsg)
 
     step_status.abort = true
-    step_status.fail= true
+    step_status.fail = true
     step_status.msg = contMsg.text
 
     assert.fail(message)
 }
-export async function failAndContinue(message:string, capture?: boolean) {
+export async function failAndContinue(message: string, capture?: boolean) {
     logger.fatal(message)
-    let contMsg : any= {}
+    let contMsg: any = {}
 
-    contMsg.text= "[" + dateFormat("yyyy-mm-dd HH:MM:ss") + "]" + "[FAIL] : " + message
+    contMsg.text = "[" + dateFormat("yyyy-mm-dd HH:MM:ss") + "]" + "[FAIL] : " + message
 
-    if(capture){
+    if (capture) {
         let imagePath = "/screenshots/" + await utilsCommon.getTimeStamp() + ".png"
         await takeScreenshot(globalConfig.test.resultfolder + imagePath)
-        contMsg.img= "." + imagePath
+        contMsg.img = "." + imagePath
 
     }
 
     contextMessages.push(contMsg)
 
-    step_status.fail= true
+    step_status.fail = true
     step_status.msg = contMsg.text
 }
 
 export async function takeScreenshot(imagePath: string) {
     let image = await globalConfig.driver.takeScreenshot()
     fs.writeFileSync(imagePath, image, 'base64')
-        
+
 }
 
-export function addToContext(testContext:Mocha.Context) {
+export function addToContext(testContext: Mocha.Context) {
     // console.log("AddToContext : " + contextMessages.length)
-    contextMessages.forEach( msg=>{
+    contextMessages.forEach(msg => {
         addContext(testContext, msg.text)
 
-        if(msg.img)
+        if (msg.img)
             addContext(testContext, msg.img)
-    } )
+    })
 }

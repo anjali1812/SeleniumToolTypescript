@@ -18,8 +18,8 @@ function run_spec() {
     if (spec_array[i].startsWith("##") || !spec_array[i]) {
       continue;
     }
-    
-    spec_array[i]= spec_array[i].replaceAll("\\","/")
+
+    spec_array[i] = spec_array[i].replaceAll("\\", "/")
     console.log(spec_array[i]);
 
     if (!supportedBrowsers.includes(spec_array[i].split(" => ")[0])) {
@@ -106,9 +106,9 @@ function run_spec() {
   // console.log(spec_array_with_final_cmd);
 
   if (os.arch() == "arm64") {
-    fs.writeFileSync(__dirname.replaceAll("\\","/")+"/selenium-final-runner.txt", "seleniarm\n" + spec_array_with_final_cmd.toString().replaceAll("\n,", "\n"));
+    fs.writeFileSync(__dirname.replaceAll("\\", "/") + "/selenium-final-runner.txt", "seleniarm\n" + spec_array_with_final_cmd.toString().replaceAll("\n,", "\n"));
   } else {
-    fs.writeFileSync(__dirname.replaceAll("\\","/")+"/selenium-final-runner.txt" , "selenium\n" + spec_array_with_final_cmd.toString().replaceAll("\n,", "\n"));
+    fs.writeFileSync(__dirname.replaceAll("\\", "/") + "/selenium-final-runner.txt", "selenium\n" + spec_array_with_final_cmd.toString().replaceAll("\n,", "\n"));
   }
 
   console.log("\n==================== Selenium Report Files ====================\n");

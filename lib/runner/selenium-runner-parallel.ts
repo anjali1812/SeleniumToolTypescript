@@ -4,50 +4,50 @@ import * as os from "os";
 import * as path from "path";
 
 function run_spec() {
-   const sel_runnner = fs.readFileSync(path.resolve("selenium-runner.txt"), "utf-8");
-   const spec_array = sel_runnner.split("\n");
-   const spec_array_with_result_folder: string[] = [];
-   const spec_array_with_final_cmd: string[] = [];
- 
-   let supportedBrowsers = ["chrome", "firefox", "edge"];
-   let unsupported_browser = false;
- 
-   console.log("Below spec files / folders will be run serially in docker.\n");
- 
-   for (let i = 0; i < spec_array.length; i++) {
-     if (spec_array[i].startsWith("##") || !spec_array[i]) {
-      continue;
-     }
+  const sel_runnner = fs.readFileSync(path.resolve("selenium-runner.txt"), "utf-8");
+  const spec_array = sel_runnner.split("\n");
+  const spec_array_with_result_folder: string[] = [];
+  const spec_array_with_final_cmd: string[] = [];
 
-     spec_array[i]= spec_array[i].replaceAll("\\","/")
-     console.log(spec_array[i]);
- 
-     if (!supportedBrowsers.includes(spec_array[i].split(" => ")[0])) {
-       spec_array[i] = spec_array[i].replace(spec_array[i].split(" => ")[0], "chrome");
-       unsupported_browser = true;
-     }
- 
-     let split = "/";
-     let name_index = spec_array[i].split(" => ")[1].split(split).length;
-     let spec_run_data: string;
- 
-     if (spec_array[i].includes("**")) {
-       spec_run_data = spec_array[i] + " => " + getTimeStamp() + " => " + spec_array[i].split(" => ")[1].split(split)[name_index - 3].split(".")[0];
-     } else {
-       spec_run_data = spec_array[i] + " => " + getTimeStamp() + " => " + spec_array[i].split(" => ")[1].split(split)[name_index - 1].split(".")[0];
-     }
- 
-     spec_array_with_result_folder.push(spec_run_data);
- 
-     sleep(1.3);
-   }
+  let supportedBrowsers = ["chrome", "firefox", "edge"];
+  let unsupported_browser = false;
+
+  console.log("Below spec files / folders will be run serially in docker.\n");
+
+  for (let i = 0; i < spec_array.length; i++) {
+    if (spec_array[i].startsWith("##") || !spec_array[i]) {
+      continue;
+    }
+
+    spec_array[i] = spec_array[i].replaceAll("\\", "/")
+    console.log(spec_array[i]);
+
+    if (!supportedBrowsers.includes(spec_array[i].split(" => ")[0])) {
+      spec_array[i] = spec_array[i].replace(spec_array[i].split(" => ")[0], "chrome");
+      unsupported_browser = true;
+    }
+
+    let split = "/";
+    let name_index = spec_array[i].split(" => ")[1].split(split).length;
+    let spec_run_data: string;
+
+    if (spec_array[i].includes("**")) {
+      spec_run_data = spec_array[i] + " => " + getTimeStamp() + " => " + spec_array[i].split(" => ")[1].split(split)[name_index - 3].split(".")[0];
+    } else {
+      spec_run_data = spec_array[i] + " => " + getTimeStamp() + " => " + spec_array[i].split(" => ")[1].split(split)[name_index - 1].split(".")[0];
+    }
+
+    spec_array_with_result_folder.push(spec_run_data);
+
+    sleep(1.3);
+  }
 
   // console.log(spec_array_with_result_folder);
 
   console.log("\nTotal spec files / folders found : " + spec_array_with_result_folder.length);
 
   if (unsupported_browser) {
-   console.log("\nWarning : Please select docker serial runs supported browsers : " + supportedBrowsers.toString() + ", for current run defaulting to chrome...");
+    console.log("\nWarning : Please select docker serial runs supported browsers : " + supportedBrowsers.toString() + ", for current run defaulting to chrome...");
   }
 
   for (let i = 0; i < spec_array_with_result_folder.length; i++) {
@@ -84,12 +84,12 @@ function run_spec() {
 
   // console.log(spec_array_with_final_cmd);
 
-  fs.writeFileSync(__dirname.replaceAll("\\","/")+"/selenium-final-runner.txt", final_cmd);
+  fs.writeFileSync(__dirname.replaceAll("\\", "/") + "/selenium-final-runner.txt", final_cmd);
 
   console.log("\n==================== Selenium Report Files ====================\n");
 
   for (let i = 0; i < spec_array_with_result_folder.length; i++) {
-    let report_folder_path = path.resolve("results").replaceAll("\\", "/") + "/_parallel/"+ spec_array_with_result_folder[i].split(" => ")[3] + "/" + spec_array_with_result_folder[i].split(" => ")[2];
+    let report_folder_path = path.resolve("results").replaceAll("\\", "/") + "/_parallel/" + spec_array_with_result_folder[i].split(" => ")[3] + "/" + spec_array_with_result_folder[i].split(" => ")[2];
     let log = path.resolve(__dirname, String(report_folder_path + "/selenium-log.txt"));
     let report = path.resolve(__dirname, String(report_folder_path + "/selenium-report.html"));
     console.log(log);
