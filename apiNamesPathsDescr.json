@@ -6,18 +6,28 @@
             "descr" : "Launch Url"
         },
         {
-            "name" : "login",
+            "name" : "setInInputText_with_xpath",
             "path" : "lib/common/uihelper",
+            "descr" : "Set Text Using Xpath"
+        },
+        {
+            "name" : "clickButton_with_xpath",
+            "path" : "lib/common/uihelper",
+            "descr" : "Click Button Using Xpath"
+        },
+        {
+            "name" : "login_svadhi",
+            "path" : "lib/svadhi/svadhi_uihelper",
             "descr" : "Login"
         },
         {
-            "name" : "setInInputText",
-            "path" : "lib/common/uihelper",
+            "name" : "setInInputText_svadhi",
+            "path" : "lib/svadhi/svadhi_uihelper",
             "descr" : "Set Text"
         },
         {
-            "name" : "clickButton",
-            "path" : "lib/common/uihelper",
+            "name" : "clickButton_svadhi",
+            "path" : "lib/svadhi/svadhi_uihelper",
             "descr" : "Click"
         },
         {

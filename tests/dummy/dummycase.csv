@@ -1,6 +1,3 @@
 launchUrl,url=https://svadhi.globalvoxprojects.com/
-setInInputText,"xpath=//label[contains(text(),'Email')]//following::input[1]",svadhi@admin.com
-setInInputText,Password,Admin@1234
-clickButton,xpath=//button[text()='Login' or @title='Login']
-skip,login,"username=svadhi@admin.com","password=Admin@1234","buttonText=Login"
+login_svadhi,"username=svadhi@admin.com","password=Admin@1234",
 verifyToastMessage,user login successfully

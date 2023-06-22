@@ -1,6 +1,6 @@
 import * as globalConfig from "./config"
 import * as reporter from "./reporter"
-import { By, Key, WebDriver, until } from "selenium-webdriver"
+import { By, Key, WebDriver, WebElement, until } from "selenium-webdriver"
 
 let driver: WebDriver
 export async function launchUrl(url: string) {
@@ -9,18 +9,10 @@ export async function launchUrl(url: string) {
 
     await reporter.pass("Launched " + url, true)
 }
+
 export async function think(Sec: number) {
     return new Promise(resolve => setTimeout(resolve, Sec * 1000));
 }
-export async function login(username: string, password: string, buttonText: string) {
-    await setInInputText("Email", username)
-    await setInInputText("Password", password)
-
-    await clickButton(buttonText)
-
-    await reporter.pass(username + " logged in successfully", true)
-}
-
 
 export async function logout() {
     if ((await driver.findElements(By.css(".Toastify"))).length > 0) {
@@ -39,22 +31,94 @@ export async function clickLink(linkName: string) {
     await reporter.pass("Clicked on " + linkName, true)
 }
 
-export async function setInInputText(label: string, text: string) {
+export async function setInInputText_with_xpath(label: string, value: string) {
+    let xpath: string
+    xpath= label.substring(label.indexOf("=")+1, label.length).trim()
 
-    let xpath = "//label[contains(text(),'" + label + "')]//following::input[1]"
+    let inputElem= await getElementWithXpath(xpath)
 
-    await driver.findElement(By.xpath(xpath)).clear()
+    if(inputElem != null){
+        if (value && value.toLowerCase().equals("[tab]")) {
+            await inputElem.sendKeys(Key.TAB)
+            return
+        } else if (value && value.toLowerCase().equals("[enter]")) {
+            await inputElem.sendKeys(Key.ENTER)
+            return
+        }else{
+            await moveToElement(inputElem)
+            await inputElem.clear()
 
-    await driver.findElement(By.xpath(xpath)).sendKeys(text)
-    await driver.findElement(By.xpath(xpath)).sendKeys(Key.TAB)
-
-    await reporter.pass("Value " + text + " entered in " + label + " inputbox", true)
+            await inputElem.sendKeys(value)
+            await inputElem.sendKeys(Key.TAB)
+        
+            await reporter.pass("Value " + value + " entered in input field with xpath " + label , true)
+            return false
+        }
+    }else{
+        await reporter.fail("Element not found with xpath " + xpath, true)
+        return false
+    }
 }
 
-export async function clickButton(buttonText: string) {
-    await driver.findElement(By.xpath("//button[text()='" + buttonText + "' or @title='" + buttonText + "']")).click()
+export async function clickButton_with_xpath(label: string) {
 
-    await reporter.pass("Clicked on " + buttonText, true)
+    let buttonXpath: string
+    if(label.startsWith("//"))
+        buttonXpath= label
+    else
+        buttonXpath = label.substring(label.indexOf("=")+1, label.length).trim()
+
+    let buttonElem : WebElement = await getElementWithXpath(buttonXpath)
+
+    if(await buttonElem.isDisplayed()){
+        await moveToElement(buttonElem)
+        await highlightElement(buttonElem)
+        await buttonElem.click()
+        await reporter.pass("Clicked button with xpath : " + label, true)
+        return true
+    }
+    else{
+        await reporter.fail("Element/ Button not found with xpath : "+ label, true)
+        return false
+    }
+
+}
+
+export async function getElementWithXpath(xpath:string) {
+    try{
+        try{
+            await waitForPageLoad()
+            let elem: any = await driver.wait(until.elementLocated(By.xpath(xpath)), 2000)
+            return elem
+        }
+        catch(err){
+            return null
+        }    
+    }finally{}
+
+}
+
+export async function waitForPageLoad() {
+    for (let i = 0; i < 180; i++) {
+        await think(1)
+        try{
+            let pageready : string = await driver.executeScript("return document.readyState")
+
+            if(pageready == "complete")
+                return
+        }catch(error){
+            reporter.debug("Problem while loading page ... " + error)
+        }
+    }
+}
+
+export async function moveToElement(elem:WebElement) {
+    await driver.executeScript("arguments[0].scrollIntoView(true);", elem)
+}
+
+export async function highlightElement(elem:WebElement) {
+    await driver.executeScript("arguments[0].setAttribute('style', 'background: yellow; border: 2px solid red;');", elem)
+    await think(0.5)
 }
 
 export async function verifyToastMessage(textToBeVerified: string) {
@@ -65,7 +129,7 @@ export async function verifyToastMessage(textToBeVerified: string) {
 
     if (toastElem.length > 0) {
         let toastMsg = await toastElem[0].getAttribute("innerText")
-        await reporter.info("Toast Message On UI : " + toastMsg, false)
+        await reporter.info("Toast Message On UI : " + toastMsg, true)
 
         if (toastMsg.toLowerCase().includes(textToBeVerified)) {
             await reporter.pass("Toast message [ " + textToBeVerified + " ] verified successfully.", true);
