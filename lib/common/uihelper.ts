@@ -1,6 +1,8 @@
+import * as path from "path";
 import * as globalConfig from "./config"
 import * as reporter from "./reporter"
 import { By, Key, WebDriver, WebElement, until } from "selenium-webdriver"
+import * as fs from "fs";
 
 let driver: WebDriver
 export async function launchUrl(url: string) {
@@ -60,17 +62,20 @@ export async function setInInputText_with_xpath(label: string, value: string) {
     }
 }
 
-export async function clickButton_with_xpath(label: string) {
+export async function click_with_xpath(label: string) {
 
-    let buttonXpath: string
-    if(label.startsWith("//"))
-        buttonXpath= label
-    else
-        buttonXpath = label.substring(label.indexOf("=")+1, label.length).trim()
+    let buttonXpath: string=""
+
+    if(label.toLowerCase().includes("xpath") || label.startsWith("//")){
+        if(label.startsWith("//"))
+            buttonXpath= label
+        else
+            buttonXpath = label.substring(label.indexOf("=")+1, label.length).trim()
+    }
 
     let buttonElem : WebElement = await getElementWithXpath(buttonXpath)
 
-    if(await buttonElem.isDisplayed()){
+    if(buttonElem!=null && await buttonElem.isDisplayed()){
         await moveToElement(buttonElem)
         await highlightElement(buttonElem)
         await buttonElem.click()
@@ -96,6 +101,15 @@ export async function getElementWithXpath(xpath:string) {
         }    
     }finally{}
 
+}
+
+export async function getElementsWithXpath(xpath: string) {
+	try {
+		await waitForPageLoad();
+		let elements = await driver.findElements(By.xpath(xpath))
+		return elements;
+	} finally {
+	}
 }
 
 export async function waitForPageLoad() {
@@ -144,4 +158,100 @@ export async function verifyToastMessage(textToBeVerified: string) {
 
 export async function quit() {
     globalConfig.quitDriver()
+}
+
+export async function isTextOrElementPresent(label: string) {
+
+    if(label.toLowerCase().includes("xpath") || label.startsWith("//")){
+        let elems= await getElementsWithXpath(label.replace("xpath=",""))
+        if(elems.length>0){
+            if(await elems[0].isDisplayed()){
+                await moveToElement(elems[0])
+                await reporter.pass("Text | Element with xpath [" + label + "] found", true)
+                return true
+            }
+        }
+        else{
+            await reporter.info("Text | Element with xpath [" + label + "] not found", true)
+            return false;
+        }
+    }else{
+        return await verifyReadOnlyText(label)
+    }
+
+    return false
+}
+
+export async function verifyReadOnlyText(text:string, strictCheck= true) {
+    let ele: WebElement;
+    try {
+        let XPATH = "";
+        if (strictCheck == false) {
+            let case_in_sensitive_xpath = 'translate(., "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz")="' + text.toLowerCase() + '"';
+            XPATH = '//*[normalize-space(text())="' + text + '" or normalize-space(@title)="' + text + '" or .="' + text + '" or ' + case_in_sensitive_xpath + "]";
+        } else {
+            XPATH = '//*[normalize-space(text())="' + text + '" or normalize-space(@title)="' + text + '" or .="' + text + '"]';
+        }
+        await reporter.debug(XPATH);
+        ele = await driver.findElement(By.xpath(XPATH));
+        if (ele) {
+            if ((await ele.isDisplayed()) == true) {
+                await highlightElement(ele);
+                await moveToElement(ele);
+                await reporter.pass("Text found [ " + text + " ]", true);
+                return true
+            } else {
+                await reporter.warn("Text found but not displayed [ " + text + " ]", true);
+                return true
+            }
+        } else {
+            await reporter.info("Text not found [ " + text + " ]", true);
+            return false
+        }
+    } catch (error) {
+        await reporter.fail(String(error), true);
+    }
+
+    return false
+}
+
+export async function closeModal(dialogTitle: string) {
+    let closeElem = await driver.findElement(By.xpath("//*[normalize-space(@class)='modal-title' and text()='"+dialogTitle+"']/following-sibling::button[@aria-label='Close']"))
+
+    if(closeElem!= null)
+    {
+        await reporter.info("Closing dialog : " + dialogTitle)
+        await closeElem.click()
+        await reporter.pass(dialogTitle + " dialog closed", true)
+    }else{
+        await reporter.fail(dialogTitle + " dialog not found to close", true)
+    }
+}
+
+export async function getDownloadedFile() {
+    await think(5)
+    let downloadDirPath = path.resolve(globalConfig.test.resultfolder + "/downloads")
+    let newFile= ""
+    let files= fs.readdirSync(downloadDirPath)
+
+    for (let i = 0; i < files.length; i++) {
+        if( newFile==null ){
+            newFile= files[i]
+            continue
+        }
+
+        let file1_time= fs.statSync(path.resolve(downloadDirPath + "/" + files[i])).mtime.getTime()
+        let file2_time= fs.statSync(path.resolve(downloadDirPath + "/" + newFile)).mtime.getTime()
+
+        if(file1_time > file2_time)
+            newFile= files[i]
+    }
+
+    if(newFile != null){
+        await reporter.pass("Latest downloaded file path : " + path.resolve(downloadDirPath + "/" + newFile))
+        return (downloadDirPath + "/" + newFile)
+    }else{
+        await reporter.fail("No files found in downloads folder ")
+        return null
+    }
 }

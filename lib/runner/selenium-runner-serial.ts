@@ -1,6 +1,5 @@
 import * as fs from "fs";
 import { getTimeStamp, sleep } from "../common/utilsCommon";
-import * as os from "os";
 import * as path from "path";
 
 function run_spec() {

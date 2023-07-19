@@ -11,9 +11,34 @@
             "descr" : "Set Text Using Xpath"
         },
         {
-            "name" : "clickButton_with_xpath",
+            "name" : "click_with_xpath",
             "path" : "lib/common/uihelper",
             "descr" : "Click Button Using Xpath"
+        },
+        {
+            "name" : "verifyToastMessage",
+            "path" : "lib/common/uihelper",
+            "descr" : "Verify Toast Message"
+        },
+        {
+            "name" : "waitForPageLoad",
+            "path" : "lib/common/uihelper",
+            "descr" : "Wait till the page load"
+        },
+        {
+            "name": "isTextOrElementPresent",
+            "path":"lib/common/uihelper",
+            "descr":"Verify given element or text is present on UI"
+        },
+        {
+            "name":"closeModal",
+            "path":"lib/common/uihelper",
+            "descr":"Closes the modal according to given title"
+        },
+        {
+            "name":"getDownloadedFile",
+            "path":"lib/common/uihelper",
+            "descr":"Gets downloaded file path"
         },
         {
             "name" : "login_svadhi",
@@ -31,9 +56,24 @@
             "descr" : "Click"
         },
         {
-            "name" : "verifyToastMessage",
-            "path" : "lib/common/uihelper",
-            "descr" : "Verify Toast Message"
+            "name": "multipleSelectUnselectDropdown",
+            "path": "lib/bridgeinvest/bridgeinvest_uihelper",
+            "descr":"Select Multiple options from dropdown"
+        },
+        {
+            "name": "freezeUnfreezeColumns",
+            "path": "lib/bridgeinvest/bridgeinvest",
+            "descr":"Freeze unfreeze columns"
+        },
+        {
+            "name":"briClickButton",
+            "path":"lib/bridgeinvest/bridgeinvest_uihelper",
+            "descr":"Click button using label and xpath"
+        },
+        {
+            "name":"selectCheckBox",
+            "path":"lib/bridgeinvest/bridgeinvest_uihelper",
+            "descr":"Select unselect checkboxes"
         }
     ]
 }

@@ -12,7 +12,7 @@ echo -e "\n======================== Selenium Grid ========================"
 echo -e "\nhttp://localhost:4444"
 echo -e "\n===============================================================\n"
 
-docker_cmd=`cat lib/common/runner/selenium-final-runner.txt`
+docker_cmd=`cat lib/runner/selenium-final-runner.txt`
 
 IFS=$'\n' lines=( ${docker_cmd} )
 

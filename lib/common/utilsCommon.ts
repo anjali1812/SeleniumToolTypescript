@@ -11,7 +11,7 @@ const Jimp = require("jimp");
 const papa = require("papaparse");
 const _ = require("lodash")
 
-export function init(cmdArgs: any, dirPath: string, filePath: string) {
+export async function init(cmdArgs: any, dirPath: string, filePath: string) {
 
     console.log("\n" + JSON.stringify(cmdArgs) + "\n")
 
@@ -42,15 +42,63 @@ export function init(cmdArgs: any, dirPath: string, filePath: string) {
 
     globalConfig.test.browser = cmdArgs.browser
 
-    if (cmdArgs.docker) {
-        console.log("DOCKER RUN")
-        globalConfig.test.execType = "docker"
-        globalConfig.setDriver(cmdArgs.browser, "true")
-    } else {
-        globalConfig.setDriver(cmdArgs.browser)
-    }
+    await setBrowserConfig(cmdArgs.browser, cmdArgs.docker)
 
     reporter.setLogger()
+}
+
+export async function setBrowserConfig(browser:string, docker: boolean) {
+    if( browser.equalsIgnoreCase("chrome") ){
+        if(docker){
+            console.log("DOCKER RUN")
+            globalConfig.test.execType = "docker"
+            let caps={
+                "browserName": "chrome"
+            }
+
+            globalConfig.setDriver(caps, "true")
+        }else{
+            let caps= {
+                "browserName": "chrome",
+                "goog:chromeOptions": {
+                    "prefs":{
+                    "download.default_directory": path.resolve(globalConfig.test.resultfolder + "/downloads"),
+                    "download.prompt_for_download": false,
+                    "download.directory_upgrade": true,
+                    "plugins.plugins_disabled": "Chrome PDF Viewer",
+                    "plugins.always_open_pdf_externally": true,
+                    "download.extensions_to_open": "applications/pdf",
+                    "safebrowsing.enabled": true
+                    }
+                }
+            }
+    
+            globalConfig.setDriver(caps)
+        }
+    }else if(browser.equalsIgnoreCase("firefox")){
+        if(docker){
+            console.log("DOCKER RUN")
+            globalConfig.test.execType = "docker"
+            let caps={
+                "browserName": "chrome"
+            }
+
+            globalConfig.setDriver(caps, "true")
+        }else{
+            let caps= {
+                "browserName": "firefox",
+                    "moz:firefoxOptions": {
+                        "prefs":{
+                        "browser.download.folderList": 2,
+                        "browser.download.dir": path.resolve(globalConfig.test.resultfolder + "/downloads"),
+                        "browser.helperApps.neverAsk.saveToDisk":"text/csv",
+                        "pdfjs.disabled": true
+                    }
+                }
+            }
+            globalConfig.setDriver(caps)
+        }
+    }
 }
 
 export function getTimeStamp() {
