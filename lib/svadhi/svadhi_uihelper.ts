@@ -40,7 +40,7 @@ export async function clickButton_svadhi(label: string) {
     
     if( label.toLowerCase().includes("xpath ") || label.includes("//"))
     {
-        await uihelper.clickButton_with_xpath(label)
+        await uihelper.click_with_xpath(label)
         return
     }
 

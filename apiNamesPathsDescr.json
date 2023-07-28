@@ -56,9 +56,19 @@
             "descr" : "Click"
         },
         {
-            "name": "multipleSelectUnselectDropdown",
+            "name": "selectOneChoice",
+            "path": "lib/bridgeinvest/bridgeinvest_uihelper",
+            "descr":"Select option from dropdown"
+        },
+        {
+            "name": "multipleSelectDropdown",
             "path": "lib/bridgeinvest/bridgeinvest_uihelper",
             "descr":"Select Multiple options from dropdown"
+        },
+        {
+            "name": "multipleUnSelectInDropdown",
+            "path": "lib/bridgeinvest/bridgeinvest_uihelper",
+            "descr":"UnSelect Multiple options from dropdown"
         },
         {
             "name": "freezeUnfreezeColumns",
