@@ -250,7 +250,7 @@ export async function getTableHeaders() {
 
             if(headerElemLabel[i-1] === headerElemLabel[i])
             {
-                console.log("BREAK")
+                // console.log("BREAK")
                 break;
             }
 
@@ -302,9 +302,9 @@ export async function filterTable(colName: string, filterType: string, filterVal
 }
 
 export async function getTableData() {
-    await getTableHeaders()
 
-    let rows= (await driver.findElements(By.xpath("//*[@class='ag-pinned-left-cols-container']//*[@row-index]")))
+
+    let rows= await driver.findElements(By.xpath("//*[@class='ag-pinned-left-cols-container']//*[@row-index]"))
 
     let headerColumnMap = new Map<string,string>()
     let tableMap = new Map<number, Map<string,string>>()
@@ -327,14 +327,89 @@ export async function getTableData() {
         tableMap.set(i, headerColumnMap)
     }    
 
-    for (let i = 0; i < tableMap.size; i++) {
-        console.log("Row Num : " + i)
+    // for (let i = 0; i < tableMap.size; i++) {
+    //     console.log("Row Num : " + i)
 
-        let tableData= tableMap.get(i)
-        for(let headers of tableData!?.keys()){
-            console.log("Column : " + headers + " => Value : "+ tableData?.get(headers))
+    //     let tableData= tableMap.get(i)
+    //     for(let headers of tableData!?.keys()){
+    //         console.log("Column : " + headers + " => Value : "+ tableData?.get(headers))
+    //     }
+    // }
+
+    return tableMap
+}
+
+export async function verifyTableRow(columnNames: string , columnValues: string, rowNumber: number) {
+    let tableMap= await getTableData()
+
+    let colNames= columnNames.split(";")
+    let colValues= columnValues.split(";")
+
+    let rowColMap = tableMap.get(rowNumber-1)
+
+    if( rowColMap!= null){
+        for (let j = 0; j < colNames.length; j++) {
+            let uiColValue = rowColMap?.get(colNames[j])
+    
+            if(uiColValue == null){
+                await reporter.failAndContinue("Column with name : " + colNames[j] + " does not exists")
+                continue
+            }
+            if(uiColValue?.equalsIgnoreCase(colValues[j])){
+                await reporter.pass("Column Name : " + colNames[j] + " at row " + rowNumber + " have value : " + colValues[j] )
+            }else{
+                await reporter.failAndContinue("Column Name : " + colNames[j] + " at row " + rowNumber + " not have value : " + colValues[j] )
+            }
         }
+    }else{
+        await reporter.fail("Not found any record for given row number : " + rowNumber)
     }
 }
 
+export async function addEntity(columnNames: string, columnValues:string) {
 
+    if(headerElemLabel.length <=0)
+        await getTableHeaders()
+
+    await briClickButton("Add")
+
+    await addOrUpdateTableEntries(columnNames, columnValues, 1)
+}
+
+export async function editEntity(columnNames: string, columnValues:string, rowNumberToEdit : number) {
+    if(headerElemLabel.length <=0)
+        await getTableHeaders()
+
+    let editRowElem= await uihelper.getElementWithXpath("//*[@class='ag-pinned-left-cols-container']//*[@row-index='"+rowNumberToEdit+"']")
+    await driver.actions().doubleClick(editRowElem).perform()
+
+    await addOrUpdateTableEntries(columnNames, columnValues, rowNumberToEdit)
+}
+
+async function addOrUpdateTableEntries(columnNames: string, columnValues:string, rowNumber: number) {
+    let colNames= columnNames.split(";")
+    let colValues= columnValues.split(";")
+
+    await uihelper.click_with_xpath("//*[@class='ag-pinned-left-cols-container' or @class='ag-center-cols-container']//*[@row-index='"+rowNumber+"']//*[@aria-colindex='1']")
+    for (let i = 0; i < headerElemLabel.length; i++) {
+        
+        if(colNames.includes(headerElemLabel[i])){
+            let colPos= headerElemLabel.indexOf(headerElemLabel[i])
+
+            let cellElemXpath= "//*[@class='ag-pinned-left-cols-container' or @class='ag-center-cols-container']//*[@row-index='"+rowNumber+"']//*[@aria-colindex='"+(colPos+1)+"']"
+            if( (await driver.findElements(By.xpath(cellElemXpath+"//input"))).length > 0 ){
+                await uihelper.setInInputText_with_xpath("xpath="+cellElemXpath+"//input",colValues[colNames.indexOf(headerElemLabel[i])])
+            }else{
+                await uihelper.click_with_xpath(cellElemXpath)
+                await uihelper.click_with_xpath("xpath=//*[contains(@class,'ag-popup')]//*[text()='"+colValues[colNames.indexOf(headerElemLabel[i])]+"']")
+            }
+        }
+
+        await uihelper.think(0.3)
+        if( i< (headerElemLabel.length -3) )
+            await driver.actions().sendKeys(Key.TAB).perform()
+
+    }
+
+    await uihelper.click_with_xpath("//*[@class='ag-pinned-left-cols-container' or @class='ag-center-cols-container']//*[@row-index='"+rowNumber+"']//*[@class='fa-solid fa-check']")
+}
