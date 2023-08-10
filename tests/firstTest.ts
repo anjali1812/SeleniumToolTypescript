@@ -1,7 +1,7 @@
 import * as uihelper from "../lib/common/uihelper";
 import * as utilsCommon from "../lib/common/utilsCommon";
 import * as reporter from "../lib/common/reporter"
-import { Alert, WebDriver } from "selenium-webdriver";
+import { Alert, By, WebDriver } from "selenium-webdriver";
 import { driver } from "../lib/common/config"
 import * as briUihelper from "../lib/bridgeinvest/bridgeinvest_uihelper"
 
@@ -16,7 +16,7 @@ describe("dummy test", function(){
         reporter.clearContext()        
     }) 
 
-    // it("1. Login with correct username and password", async function(){
+// it("1. Login with correct username and password", async function(){
     //     // await uihelper.launchUrl("https://the-internet.herokuapp.com/basic_auth")
     //     await uihelper.launchUrl("https://the-internet.herokuapp.com/javascript_alerts")
     //     await uihelper.waitForPageLoad()
@@ -58,15 +58,18 @@ describe("dummy test", function(){
         // await briUihelper.verifyTableRow("First name;Last name;Notes;Addres","John;Doe;Will update him;B 203 Vasand nagar town",1)
 
         /* Add Entity Value */
-        await briUihelper.addEntity("Entity Type;First name;Last name;Notes added date","Company;ABC;ABC;02/07/2023")
-        await briUihelper.verifyTableRow("Entity Type;First name;Last name;Notes added date","Company;ABC;ABC;02/07/2023",1)
+        // await briUihelper.addEntity("Entity Type;First name;Last name;Notes added date","Company;ABC;ABC;02/07/2023")
+        // await briUihelper.verifyTableRow("Entity Type;First name;Last name;Notes added date","Company;ABC;ABC;02/07/2023",1)
 
-        await uihelper.click_with_xpath("xpath=//button[@id='lockUnlock']")
-        await briUihelper.editEntity("First name;Last name;Notes added date","ABC;ABC;02/07/2023",2)
+        /* Unlock and Edit Entity Record */
+        // await briUihelper.editEntity("First name;Last name;Notes added date","ABC;ABC;02/07/2023",2)
+        // await briUihelper.verifyTableRow("Entity Type;First name;Last name;Notes added date","Company;ABC;ABC;02/07/2023",2)
 
+        /* Add Contact under Entity */
+        await briUihelper.addContact("First name;Last name;Notes added date","ABC;ABC;02/07/2023",2)
 
     })
-
+    
     afterEach(async function(){
         reporter.addToContext(this)
     })

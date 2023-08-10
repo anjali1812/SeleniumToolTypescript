@@ -373,17 +373,38 @@ export async function addEntity(columnNames: string, columnValues:string) {
 
     await briClickButton("Add")
 
-    await addOrUpdateTableEntries(columnNames, columnValues, 1)
+    await addOrUpdateTableEntries(columnNames, columnValues, 0)
 }
 
 export async function editEntity(columnNames: string, columnValues:string, rowNumberToEdit : number) {
     if(headerElemLabel.length <=0)
         await getTableHeaders()
 
-    let editRowElem= await uihelper.getElementWithXpath("//*[@class='ag-pinned-left-cols-container']//*[@row-index='"+rowNumberToEdit+"']")
+    if(await uihelper.isTextOrElementPresent("xpath=//*[@data-icon='lock']")){
+        await uihelper.click_with_xpath("xpath=//button[@id='lockUnlock']")
+        // Code to click collapse all . Then only editEntity accor to collapsed rows number
+    }
+    await uihelper.click_with_xpath("//*[contains(@class,'ag-header-row-column-filter')]//div[@aria-colindex='1']")
+
+    for (let i = 0; i < 7; i++) {
+        await driver.actions().sendKeys(Key.ARROW_RIGHT).perform()
+    }
+
+    let editRowElem= await uihelper.getElementWithXpath("//*[@class='ag-pinned-left-cols-container']//*[@row-index='"+(rowNumberToEdit-1)+"']//*[@aria-colindex='1']")
     await driver.actions().doubleClick(editRowElem).perform()
 
-    await addOrUpdateTableEntries(columnNames, columnValues, rowNumberToEdit)
+    await addOrUpdateTableEntries(columnNames, columnValues, (rowNumberToEdit-1))
+}
+
+
+
+export async function addContact(columnNames: string, columnValues:string, entitySrNo: number) {
+
+    await uihelper.click_with_xpath("xpath=(//div[text()='"+entitySrNo+"']/..//*[@stroke='currentColor'])[2]")
+    
+    let rowNum= await driver.findElement(By.xpath("//div[text()='"+entitySrNo+"']/..")).getAttribute("row-index")
+
+    console.log("New Contact Row Number : " + (parseInt(rowNum)+2))
 }
 
 async function addOrUpdateTableEntries(columnNames: string, columnValues:string, rowNumber: number) {
@@ -405,7 +426,7 @@ async function addOrUpdateTableEntries(columnNames: string, columnValues:string,
             }
         }
 
-        await uihelper.think(0.3)
+        await uihelper.think(0.2)
         if( i< (headerElemLabel.length -3) )
             await driver.actions().sendKeys(Key.TAB).perform()
 

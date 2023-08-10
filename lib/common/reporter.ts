@@ -49,7 +49,7 @@ export async function pass(message: string, capture?: boolean) {
     logger.info(message)
     let contMsg: any = {}
 
-    contMsg.text = "[" + dateFormat("yyyy-mm-dd HH:MM:ss") + "]" + "[Pass] : " + message
+    contMsg.text = "[" + dateFormat("yyyy-mm-dd HH:MM:ss") + "]" + "[PASS] : " + message
 
     if (capture) {
         let imagePath = "/screenshots/" + await utilsCommon.getTimeStamp() + ".png"
@@ -82,11 +82,28 @@ export async function fail(message: string, capture?: boolean) {
 
     assert.fail(message)
 }
+
+export async function warn(msg: string, capture?: boolean) {
+    logger.warn(msg);
+    let contMsg: any = {};
+
+    contMsg.txt = "[" + dateFormat("yyyy-mm-dd HH:MM:ss") + "]" + " [WARN] : " + msg;
+
+    if (capture) {
+        let imagePath = "/screenshots/" + await utilsCommon.getTimeStamp() + ".png"
+        await takeScreenshot(globalConfig.test.resultfolder + imagePath)
+        contMsg.img = "." + imagePath
+    }
+
+    contextMessages.push(contMsg)
+    return;
+}
+
 export async function failAndContinue(message: string, capture?: boolean) {
-    logger.fatal(message)
+    logger.error(message)
     let contMsg: any = {}
 
-    contMsg.text = "[" + dateFormat("yyyy-mm-dd HH:MM:ss") + "]" + "[FAIL] : " + message
+    contMsg.text = "[" + dateFormat("yyyy-mm-dd HH:MM:ss") + "]" + "[ERROR] : " + message
 
     if (capture) {
         let imagePath = "/screenshots/" + await utilsCommon.getTimeStamp() + ".png"

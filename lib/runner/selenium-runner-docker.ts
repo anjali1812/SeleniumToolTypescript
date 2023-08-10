@@ -6,7 +6,7 @@ import * as os from "os";
 function run_spec() {
   const sel_runnner = fs.readFileSync(path.resolve("selenium-runner.txt"), "utf-8");
   const spec_array = sel_runnner.split("\n");
-  const spec_array_with_result_folder: string[] = [];
+  let spec_array_with_result_folder: string[] = [];
   const spec_array_with_final_cmd: string[] = [];
 
   let supportedBrowsers = ["chrome", "firefox", "edge"];
@@ -32,15 +32,62 @@ function run_spec() {
     let spec_run_data: string;
 
     if (spec_array[i].includes("**")) {
-      spec_run_data = spec_array[i] + " => " + getTimeStamp() + " => " + spec_array[i].split(" => ")[1].split(split)[name_index - 3].split(".")[0];
+      spec_run_data = (spec_array[i] + " => " + getTimeStamp() + " => " + spec_array[i].split(" => ")[1].split("**")[0]).replaceAll("\r", "")
     } else {
-      spec_run_data = spec_array[i] + " => " + getTimeStamp() + " => " + spec_array[i].split(" => ")[1].split(split)[name_index - 1].split(".")[0];
+      spec_run_data = (spec_array[i] + " => " + getTimeStamp() + " => " + spec_array[i].split(" => ")[1].split(split)[name_index - 1].split(".")[0]).replaceAll("\r","");
     }
 
     spec_array_with_result_folder.push(spec_run_data);
 
     sleep(1.3);
   }
+  let allSpec : string[] = []
+
+  for (let i = 0; i < spec_array_with_result_folder.length; i++) {
+    let fileFolder = spec_array_with_result_folder[i]
+
+    if(fileFolder.split(" => ")[1].includes("**")){
+      let dirs : string[] = []
+
+      getSubDirectories(fileFolder.split(" => ")[3], dirs)
+
+      if( fs.readdirSync(fileFolder.split(" => ")[3]).length>0 ){
+
+        let files = fs.readdirSync(fileFolder.split(" => ")[3])
+        for (let j = 0; j < files.length; j++) {
+          if(files[j].includes(".ts")){
+            let spec_data = spec_array_with_result_folder[i].split(" => ")[0] + " => " 
+                            + (fileFolder.split(" => ")[3] + "/" + files[j]).replaceAll("\\","/").replaceAll("//","/") + " => "
+                            + spec_array_with_result_folder[i].split(" => ")[2] + " => "
+                            + (fileFolder.split(" => ")[3] + path.sep + files[j]).split(".")[0].replaceAll("\\","/").replaceAll("//","/")
+            allSpec.push(spec_data)
+          }
+        }
+      }
+
+      for (let j = 0; j < dirs.length; j++) {
+        // console.log(dirs[j])
+        let files= fs.readdirSync(dirs[j])
+
+        for (let k = 0; k < files.length; k++) {
+          if(files[k].includes(".ts")){
+            let spec_data = spec_array_with_result_folder[i].split(" => ")[0] + " => " 
+                            + (dirs[j] + "/" + files[k]).replaceAll("\\","/") + " => "
+                            + spec_array_with_result_folder[i].split(" => ")[2] + " => "
+                            + (dirs[j] + path.sep + files[k]).split(".")[0].replaceAll("\\","/")
+            allSpec.push(spec_data)
+          }
+        }
+      }
+    }
+    else{
+      allSpec.push(spec_array_with_result_folder[i])
+    }
+  }
+
+  spec_array_with_result_folder= allSpec
+  
+  console.log(spec_array_with_result_folder)
 
   // console.log(spec_array_with_result_folder);
 
@@ -122,6 +169,12 @@ function run_spec() {
   }
 
   return;
+}
+
+function getSubDirectories(dirPath: string, dirs: string[]) {
+  return fs.readdirSync(dirPath, { withFileTypes: true })
+      .filter((item) => item.isDirectory())
+      .map((item) => { dirs.push(path.join(dirPath, item.name)); getSubDirectories(path.join(dirPath, item.name), dirs) });
 }
 
 run_spec();
