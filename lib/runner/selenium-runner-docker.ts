@@ -133,7 +133,7 @@ function run_spec() {
         }
       }
 
-      spec_array_with_final_cmd.push(String(spec_array_with_result_folder[i].split(" => ")[3] + "`" + docker_image + "`" + recording_folder + "`" + baseCommand + " &> '" + final_result_folder + "/selenium-log.txt'").replaceAll("\r", ""));
+      spec_array_with_final_cmd.push(String(spec_array_with_result_folder[i].split(" => ")[3] + "`" + docker_image + "`" + recording_folder + "`" + baseCommand + " &> '" + final_result_folder + "/selenium-log.txt'" + "`" + i).replaceAll("\r", ""));
     } else {
       console.error("\nPlease check selenium-runner.txt for error...");
       return;

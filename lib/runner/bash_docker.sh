@@ -34,19 +34,31 @@ width=1920
 height=1080
 frame=30
 
-docker run --env SE_EVENT_BUS_HOST="${sel_type}"-hub --env SE_EVENT_BUS_PUBLISH_PORT=4442 --env SE_EVENT_BUS_SUBSCRIBE_PORT=4443 --env SE_SCREEN_WIDTH=$width --env SE_SCREEN_HEIGHT=$height --env SE_VNC_NO_PASSWORD=1 --env SE_VNC_VIEW_ONLY=1 --net grid -d --name "${sel_type}" --shm-size='2g' "${lines_split[1]}"
+docker run --env SE_EVENT_BUS_HOST="${sel_type}"-hub --env SE_EVENT_BUS_PUBLISH_PORT=4442 --env SE_EVENT_BUS_SUBSCRIBE_PORT=4443 --env SE_SCREEN_WIDTH=$width --env SE_SCREEN_HEIGHT=$height --env SE_VNC_NO_PASSWORD=1 --env SE_VNC_VIEW_ONLY=1 --net grid -d --name "${sel_type}""${lines_split[4]}" --shm-size='2g' "${lines_split[1]}"
 
 if [ "${sel_type}" == "selenium" ]; then
-  docker run --env SE_EVENT_BUS_HOST="${sel_type}"-hub --env SE_EVENT_BUS_PUBLISH_PORT=4442 --env SE_EVENT_BUS_SUBSCRIBE_PORT=4443 --env SE_SCREEN_WIDTH=$width --env SE_SCREEN_HEIGHT=$height --env SE_FRAME_RATE=$frame --env FILE_NAME="${lines_split[0]}".mp4 -d --net grid --name video -v "${lines_split[2]}":/videos selenium/video:latest
+  docker run --env SE_EVENT_BUS_HOST="${sel_type}"-hub --env SE_EVENT_BUS_PUBLISH_PORT=4442 --env SE_EVENT_BUS_SUBSCRIBE_PORT=4443 --env SE_SCREEN_WIDTH=$width --env SE_SCREEN_HEIGHT=$height --env SE_FRAME_RATE=$frame --env FILE_NAME="${lines_split[0]}".mp4 -d --net grid --name video"${lines_split[4]}" -v "${lines_split[2]}":/videos selenium/video:latest
 fi
+
+# docker ps --all
 
 eval "${lines_split[3]}"
 
+done
+
+for cmd in "${lines[@]}";
+do
+
+IFS=$'`'
+read -a lines_split <<< "$cmd"
+
+echo -e "\ndocker existing spec => ${lines_split[0]}\n"
+
 if [ "${sel_type}" == "selenium" ]; then
-  docker stop video &>/dev/null && docker rm video
+  docker stop video"${lines_split[4]}" &>/dev/null && docker rm video"${lines_split[4]}"
 fi
 
-docker stop "${sel_type}" &>/dev/null && docker rm "${sel_type}"
+docker stop "${sel_type}""${lines_split[4]}" &>/dev/null && docker rm "${sel_type}""${lines_split[4]}"
 
 done
 
