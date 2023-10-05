@@ -62,15 +62,15 @@ export async function setBrowserConfig(browser:string, docker: boolean) {
                 "browserName": "chrome",
                 "goog:chromeOptions": {
                     "prefs":{
-                    "download.default_directory": path.resolve(globalConfig.test.resultfolder + "/downloads"),
-                    "download.prompt_for_download": false,
-                    "download.directory_upgrade": true,
-                    "plugins.plugins_disabled": "Chrome PDF Viewer",
-                    "plugins.always_open_pdf_externally": true,
-                    "download.extensions_to_open": "applications/pdf",
-                    "safebrowsing.enabled": true
+                        "download.default_directory": path.resolve(globalConfig.test.resultfolder + "/downloads"),
+                        "download.prompt_for_download": false,
+                        "download.directory_upgrade": true,
+                        "plugins.plugins_disabled": "Chrome PDF Viewer",
+                        "plugins.always_open_pdf_externally": true,
+                        "download.extensions_to_open": "applications/pdf",
+                        "safebrowsing.enabled": true
                     }
-                }
+                },
             }
     
             globalConfig.setDriver(caps)
@@ -80,7 +80,7 @@ export async function setBrowserConfig(browser:string, docker: boolean) {
             console.log("DOCKER RUN")
             globalConfig.test.execType = "docker"
             let caps={
-                "browserName": "chrome"
+                "browserName": "firefox"
             }
 
             globalConfig.setDriver(caps, "true")
@@ -89,13 +89,14 @@ export async function setBrowserConfig(browser:string, docker: boolean) {
                 "browserName": "firefox",
                     "moz:firefoxOptions": {
                         "prefs":{
-                        "browser.download.folderList": 2,
-                        "browser.download.dir": path.resolve(globalConfig.test.resultfolder + "/downloads"),
-                        "browser.helperApps.neverAsk.saveToDisk":"text/csv",
-                        "pdfjs.disabled": true
-                    }
-                }
+                            "browser.download.folderList": 2,
+                            "browser.download.dir": path.resolve(globalConfig.test.resultfolder + "/downloads"),
+                            "browser.helperApps.neverAsk.saveToDisk":"text/csv",
+                            "pdfjs.disabled": true
+                        }
+                    },
             }
+
             globalConfig.setDriver(caps)
         }
     }

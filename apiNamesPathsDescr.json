@@ -6,6 +6,11 @@
             "descr" : "Launch Url"
         },
         {
+            "name" : "logout",
+            "path" : "lib/common/uihelper",
+            "descr" : "Logout of Application"
+        },
+        {
             "name" : "setInInputText_with_xpath",
             "path" : "lib/common/uihelper",
             "descr" : "Set Text Using Xpath"
@@ -24,6 +29,11 @@
             "name" : "waitForPageLoad",
             "path" : "lib/common/uihelper",
             "descr" : "Wait till the page load"
+        },
+        {
+            "name" : "think",
+            "path" : "lib/common/uihelper",
+            "descr" : "Wait till given seconds"
         },
         {
             "name": "isTextOrElementPresent",

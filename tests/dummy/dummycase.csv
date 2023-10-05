@@ -1,3 +1,3 @@
-launchUrl,url=https://svadhi.globalvoxprojects.com/
-login_svadhi,"username=svadhi@admin.com","password=Admin@1234",
-verifyToastMessage,user login successfully
+launchUrl,"https://svadhi.globalvoxprojects.com/"
+login_svadhi,"svadhi@admin.com","Admin@1234",
+verifyToastMessage,"user login successful"
